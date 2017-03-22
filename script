@@ -1,0 +1,36 @@
+var page=require('webpage').create();
+var fs=require('fs');
+page.settings.userAgent='Mozilla/5.0 (X11; Linux x86_64; rv:50.0) Gecko/20100101 Firefox/50.0';
+
+page.onInitialized=function(){
+	phantom.clearCookies();
+	var file=fs.read('cookies.txt');
+	//console.log(file);
+	
+	var content=file.split('\n');
+	for (i=0; i<content.length-1; ++i){//last element of content is empty
+		var content2=content[i].split('\t');
+		console.log(i, content2[5]);
+		if (!phantom.addCookie({
+			'name':content2[5],
+			'value':content2[6],
+			'domain':content2[0],
+			'path':content2[2],
+			'httponly':content2[1],
+			'secure':content2[3],
+			'expires':content2[4]
+		})){console.log("cookie not loaded");};
+	}
+};
+
+page.onLoadFinished=function(){
+	page.render('peek.png');
+	fs.write('test.html', page.content, 'w');
+	phantom.exit();
+};
+
+page.open('https://github.com',
+	function(){
+		page.evaluate(function(){});
+	}
+);
